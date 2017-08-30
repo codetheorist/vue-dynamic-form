@@ -1,14 +1,21 @@
 <template>
   <div id="vue-dynamic-form">
   <form @submit.prevent="submitForm($event)">
-    <div class="form-group" v-for="field in this.$props.fields">
+    <div class="checkbox" v-for="field in this.$props.fields" v-if="field.type === 'checkboxes'">
+      <label for="" v-if="field.options" v-for="(option, index) in field.options">
+        <input v-model="fieldData[field.name]" type="checkbox" :name="field.name" :label="option.name" :checked="optionSelected(index, field.name, option.value)" :value="option.value"> {{ option.name }}
+      </label>
+    </div>
+    <div class="form-group" v-else>
       <label :for="field.name" class="control-label" v-text="field.label"></label>
-      <textarea :value="defaultValue(field.name)" :id="field.name" :name="field.name" class="form-control" v-if="field.type === 'textarea' && field.html === false" :rows="field.rows ? field.rows : 10" :cols="field.cols ? field.cols : 30"></textarea>
-      <trumbowyg :value="defaultValue(field.name)" :id="field.name" :name="field.name" class="form-control" v-else-if="field.type === 'textarea'"></trumbowyg>
-      <select :name="field.name" class="form-control" :id="field.name" v-else-if="field.type === 'select'" :required="field.required ? field.required : false">
-        <option v-if="field.options" :value="value" :selected="optionSelected(index, field.name, value)" v-for="(key, value, index) in field.options" v-text="key"></option>
+      <textarea v-model="fieldData[field.name]" :value="defaultValue(field.name)" :id="field.name" :name="field.name" class="form-control" v-if="field.type === 'textarea' && field.html === false" :rows="field.rows ? field.rows : 10" :cols="field.cols ? field.cols : 30"></textarea>
+      <trumbowyg v-model="fieldData[field.name]" :value="defaultValue(field.name)" :id="field.name" :name="field.name" class="form-control" v-else-if="field.type === 'textarea'"></trumbowyg>
+      <select v-model="fieldData[field.name]" :name="field.name" class="form-control" :id="field.name" v-else-if="field.type === 'select'" :required="field.required ? field.required : false">
+        <option v-if="field.options" :value="option.value" :selected="optionSelected(index, field.name, field.value)" v-for="(option, index) in field.options" v-text="option.name"></option>
       </select>
-      <input :value="defaultValue(field.name)" :type="field.type" class="form-control" :name="field.name" :id="field.name" v-else :required="field.required ? field.required : false">
+      <input v-model="fieldData[field.name]" :value="defaultValue(field.name)" type="text" class="form-control" :name="field.name" :id="field.name" v-else-if="field.type === 'text'" :required="field.required ? field.required : false">
+      <input v-model="fieldData[field.name]" :value="defaultValue(field.name)" type="password" class="form-control" :name="field.name" :id="field.name" v-else-if="field.type === 'password'" :required="field.required ? field.required : false">
+      <input v-model="fieldData[field.name]" :value="defaultValue(field.name)" type="email" class="form-control" :name="field.name" :id="field.name" v-else-if="field.type === 'email'" :required="field.required ? field.required : false">
     </div>
     <div class="form-group">
       <button type="submit" class="btn btn-primary">Update Menu Item</button>
@@ -26,7 +33,8 @@
     data (){
       return {
         newBody: '',
-        fieldsData: {}
+        fieldData: [],
+        checkboxData: []
       }
     },
     props: {
@@ -36,33 +44,44 @@
       },
       entity: {
         type: Object,
-        default: () => {}
+        default: () => null
       }
     },
+    mounted () {
+      this.checkedBoxes();
+    },
     methods: {
-      submitForm(data) {
-        var kvpairs = [];
-        var elements = data.target.elements
-        var re = new RegExp('(^|\\s)trumbowyg(\\s|$)');
-        var result = [];
-        for (var i=0, iLen=elements.length; i<iLen; i++) {
-          if (
-              elements[i].className.includes('trumbowyg') &&
-              elements[i].className.includes('form-control') &&
-              !elements[i].className.includes('btn')
-            ) {
-            kvpairs[elements[i].name] = elements[i].value
-          } else if (
-              !elements[i].className.includes('trumbowyg') &&
-              !elements[i].className.includes('btn')
-            ) {
-            kvpairs[elements[i].name] = elements[i].value
+      checkedBoxes() {
+        var fieldData = []
+        if (this.$props.fields) {
+          for (var i=0, iLen=this.$props.fields.length; i<iLen; i++) {
+            if (this.$props.fields[i].type === 'text') {
+              fieldData[this.$props.fields[i].name] = ''
+            } else if (this.$props.fields[i].type === 'select') {
+              fieldData[this.$props.fields[i].name] = ''
+            } else if (this.$props.fields[i].type === 'checkboxes') {
+              fieldData[this.$props.fields[i].name] = []
+            } else if (this.$props.fields[i].type === 'textarea') {
+              fieldData[this.$props.fields[i].name] = ''
+            }
+          }
+          if (this.$props.entity) {
+            var that = this
+
+            Object.keys(this.$props.entity).forEach(function(key,index) {
+              fieldData[key] = that.$props.entity[key]
+            });
           }
         }
-
-        this.$emit('submit-form', kvpairs)
+        this.fieldData = fieldData
+      },
+      submitForm(data) {
+        this.$emit('submit-form', this.fieldData)
       },
       optionSelected(index, name, value) {
+        if (Array.isArray(this.$props.entity[name]) && this.$props.entity[name].indexOf(value)) {
+          return true
+        }
         if (this.$props.entity && this.$props.entity[name] && this.$props.entity[name] === value) {
           return true
         } else if (!this.$props.entity && index === 0) {
