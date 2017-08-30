@@ -41,7 +41,26 @@
     },
     methods: {
       submitForm(data) {
-        this.$emit('submit-form', data)
+        var kvpairs = [];
+        var elements = data.target.elements
+        var re = new RegExp('(^|\\s)trumbowyg(\\s|$)');
+        var result = [];
+        for (var i=0, iLen=elements.length; i<iLen; i++) {
+          if (
+              elements[i].className.includes('trumbowyg') &&
+              elements[i].className.includes('form-control') &&
+              !elements[i].className.includes('btn')
+            ) {
+            kvpairs[elements[i].name] = elements[i].value
+          } else if (
+              !elements[i].className.includes('trumbowyg') &&
+              !elements[i].className.includes('btn')
+            ) {
+            kvpairs[elements[i].name] = elements[i].value
+          }
+        }
+
+        this.$emit('submit-form', kvpairs)
       },
       optionSelected(index, name, value) {
         if (this.$props.entity && this.$props.entity[name] && this.$props.entity[name] === value) {
