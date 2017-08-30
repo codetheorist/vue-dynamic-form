@@ -42,57 +42,23 @@ The component also emits a `submit-form` event, as seen above. Setup a method in
 
 The `value` variable contains an array of key/value pairs of your form data, to process however you choose. The example above will simply print the array to the console.
 
-## Example Data
+## Complete Single File Component Example
 
-To get a form wrapper setup and working quickly, copy the following code into a Vue component:
+Below is a sample Single File Component for VueJS, that gives an example of what the fields prop and the entity prop should contain, as well as an example submit handler that simply logs the form data:
 
 ```
+<template>
+    <div id="form-wrapper">
+        <vue-dynamic-form @submit-form="submitForm" :fields="fields" :entity="entity"></vue-dynamic-form>
+    </div>
+</template>
+<script>
   import VueDynamicForm from 'vue-dynamic-form'
   export default {
     name: 'edit-form-tester',
     methods: {
       submitForm(data) {
-        var kvpairs = [];
-        var form = data.target
-        var elements = form.elements
-        var arr = document.getElementsByClassName('t*');
-        var re = new RegExp('(^|\\s)trumbowyg(\\s|$)');
-        var result = [];
-        var string = "foo",
-            substring = "trumbowyg";
-        for (var i=0, iLen=elements.length; i<iLen; i++) {
-          if (elements[i].className.includes('trumbowyg') && elements[i].className.includes('form-control') && !elements[i].className.includes('btn')) {
-            kvpairs[elements[i].name] = elements[i].value
-          } else if (!elements[i].className.includes('trumbowyg') && !elements[i].className.includes('btn')) {
-            kvpairs[elements[i].name] = elements[i].value
-          }
-        }
-
-        console.log(result)
-
-        // Array.from(elements).forEach(v=>{
-        //   console.log(v)
-        // })
-        // for ( var i = 0; i < form.elements.length; i++ ) {
-        //    var e = form.elements[i];
-        //    kvpairs.push(encodeURIComponent(e.name) + "=" + encodeURIComponent(e.value));
-        // }
-        // var queryString = kvpairs.join("&");
-        // // console.log(data)
-        console.log(kvpairs)
-        // console.log(form.elements)
-        // elements.forEach(compileFormData)
-        // function compileFormData(item, index, arr) {
-        // console.log(item)
-        // console.log(index)
-        // console.log(arr)
-        // }
-        // for (element, value, index in form.elements) {
-        //   if (element.indexOf('.trumbowyg') !== -1) {
-        //     console.log('True')
-        //   }
-        // }
-        // console.log(arr)
+        console.log(data)
       }
     },
     data () {
@@ -131,4 +97,5 @@ To get a form wrapper setup and working quickly, copy the following code into a 
       VueDynamicForm
     }
   }
+</script>
 ```
