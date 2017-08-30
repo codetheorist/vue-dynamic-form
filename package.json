@@ -1,6 +1,6 @@
 {
   "name": "vue-dynamic-form",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A dynamic entity form component for VueJS. Simple to use, just pass the required field prop and optional entity prop.",
   "main": "dist/vue-dynamic-form.js",
   "scripts": {
